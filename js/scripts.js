@@ -1,32 +1,26 @@
 // Business Logic for Dice Game
-function Players() {
+function Game() {
   this.players = [],
-  this.playerId = 0
-}
-
-Players.prototype.addPlayer = function(player) {
-  player.Id = this.playerID();
-  this.players.push(player);
-}
-
-Players.prototype.playerID = function() {
-  this.playerId += 1;
-  return this.playerId;
-}
-
-function Player(Name) {
-  this.name = Name,
   this.roll = 0,
   this.temp = 0,
-  this.total = 0,
   this.turn = ""
 }
+
+Game.prototype.addPlayer = function(player) {
+  this.players.push(player);
+}
+// }
+//
+// Game.prototype.assignID = function() {
+//   this.currentId += 1;
+//   return this.currentId;
+// }
 
 function RollDice() {
   return Math.floor(Math.random()*6)+1;
 }
 
-Player.prototype.Roll = function(Roll) {
+Game.prototype.Roll = function(Roll) {
   if (Roll > 1 && Roll <= 6) {
     this.roll = Roll;
   }
@@ -37,26 +31,47 @@ Player.prototype.Roll = function(Roll) {
   return this.roll;
 }
 
-Player.prototype.Temp = function() {
+Game.prototype.Temp = function(roll) {
   if (this.roll > 1 && this.roll <= 6) {
     this.temp += this.roll;
   }
   else if (this.roll = 1) {
     this.temp = 0;
   }
+  return this.temp;
 }
 
-Player.prototype.Hold = function() {
+// var temp = function(roll) {
+//   var temp = 0;
+//   if (roll > 1 && roll <= 6) {
+//     temp += roll;
+//   }
+//   else if (roll = 1) {
+//     temp = 0;
+//   }
+//   return temp;
+// }
+
+Game.prototype.Hold = function() {{
   this.total += this.temp;
+  var totalUp = this.total;
   this.roll = 0;
   this.temp = 0;
+  }
+  return totalUp;
 }
 
-Player.prototype.NewGame = function() {
-  this.roll = 0;
+Game.prototype.NewGame = function() {
+  this.players.score = 0;
   this.temp = 0;
   this.total = 0;
   this.turn = "";
+}
+
+function Player(Name, score, id) {
+  this.name = Name,
+  this.score = 0,
+  this.id = id
 }
 
 Player.prototype.CheckForHundred = function(){
@@ -65,16 +80,7 @@ Player.prototype.CheckForHundred = function(){
   }
 }
 
-Player.prototype.SwitchTo = function() {
-  this.turn = "it's your turn";
-}
-
-Player.prototype.SwitchOff = function() {
-  this.turn = "it's NOT your turn";
-}
-
-
-var players = new Players;
+var players = new Game;
 
 // var Player1 = new Player;
 // var Player2 = new Player;
@@ -83,83 +89,72 @@ function displayPlayerDetails(playersToDisplay) {
   var playersList = $("div#playersHere");
   var htmlForPlayerInfo = "";
   playersToDisplay.players.forEach(function(player) {
-    htmlForPlayerInfo += "<div><p>" + "name:" + player.name + "<br>" + "roll score:" + player.roll + "<br>" + "temp score:" + player.temp + "<br>" + "total score:" + player.total + "<br>" + player.turn + "</p></div>";
+    htmlForPlayerInfo += "<div><p>" + "name:" + player.name + "<br>" + "total score:" + player.score + "<br>" + player.turn + "</p></div>";
   })
   playersList.html(htmlForPlayerInfo);
 };
 
+function whoseTurn() {
+
+}
+
+function changePlayers() {
+
+}
+
+var rollTemp = 0;
 
 $(document).ready(function() {
 
   $("#newPlayer").submit(function(event) {
     event.preventDefault();
     var inputtedPlayerName = $("input#newName").val();
+    var inputtedPlayerNumber = parseInt($("input#newNumber").val());
     $("input#newName").val("");
-    var newPlayer = new Player(inputtedPlayerName);
+    $("input#newNumber").val("");
+
+    var newPlayer = new Player(inputtedPlayerName,inputtedPlayerNumber);
     players.addPlayer(newPlayer);
     displayPlayerDetails(players);
+    console.log(players);
 
   });
 
 
-  $("#PlayerOneRoll").click(function(event) {
-    Player1.Roll(RollDice());
-    $("#diceRoll").html("<img src=img/" + Player1.Roll(RollDice()) + ".png>");
-    Player1.Temp();
-    $("#currentRollOne").text(Player1.roll);
-    $("#turnTotalOne").text(Player1.temp);
-    // $("#turnOne").text(Player1.turn);
+  $("#rollButton").click(function(event) {
+    var rollInit = players.Roll(RollDice());
+    var rollTemp = players.Temp();
+
+    console.log(players);
+    console.log(rollInit);
+    console.log(rollTemp);
+
 
  });
 
-  $("#PlayerOneHold").click(function(event) {
-    Player1.Hold();
-      // alert("It's Now Player2's Turn");
-    Player1.SwitchOff();
-    $("#turnOne").text(Player1.turn);
-    Player2.SwitchTo();
-    $("#turnTwo").text(Player2.turn);
-    $("#totalScoreOne").text(Player1.total);
-    Player1.CheckForHundred();
-     $("#playerOneScore").text(Player1.total);
+  $("#holdButton").click(function(event) {
+    players.Hold();
+
+    console.log(players);
+    console.log(turnTotal);
+
+
 
   });
 
 
 
-  $("#PlayerTwoRoll").click(function(event) {
-    Player2.Roll(RollDice());
-    $("#diceRoll").html("<img src=img/" + Player2.Roll(RollDice()) + ".png>");
-    Player2.Temp();
-    $("#currentRollTwo").text(Player2.roll);
-    $("#turnTotalTwo").text(Player2.temp);
+  $("#startGame").click(function(event) {
+    // players.addID();
+    console.log(players);
+
   });
 
   $("#PlayerTwoHold").click(function(event) {
-    Player2.Hold();
-    // alert("It's Now Player1's Turn");
-    $("#totalScoreTwo").text(Player2.total);
-    Player2.CheckForHundred();
-    $("#playerTwoScore").text(Player2.total);
-    Player2.SwitchOff();
-    $("#turnTwo").text(Player2.turn);
-    Player1.SwitchTo();
-    $("#turnOne").text(Player1.turn);
+
   });
 
   $("#newGame").click(function(event) {
-    Player1.NewGame();
-    Player2.NewGame();
-    $("#currentRollOne").text("");
-    $("#turnTotalOne").text("");
-    $("#totalScoreOne").text("");
-
-    $("#currentRollTwo").text("");
-    $("#turnTotalTwo").text("");
-    $("#totalScoreTwo").text("");
-
-    $("#playerOneScore").text("");
-    $("#playerTwoScore").text("");
 
   })
 
